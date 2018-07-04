@@ -87,8 +87,75 @@ function displayToItemPos(dimensions=[256,256], invPos=[0,0], toPos= [16,16], im
 }
 function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],imageSize=[32,32/Math.cos(45*(Math.PI / 180)),0],image="custom_gui/tree_crafting"){
   var outPos = (imageSize[0]-16) + ', ' + (imageSize[1]-16) + ', ' + (imageSize[2]-16) //prep this out positioning. basically that image size thing.
-  var output = '{\n      "textures": {\n          "gui": "'+image+'"\n      },\n      "elements": [\n          {\n              "from": [ -16, -16, -16 ],\n              "to": [ ' + outPos + ' ],\n              "rotation": {\n                  "origin":[ '+positions[0].toString()+', 0],\n                  "axis":"z",\n                  "angle":-22.5\n              },\n              "faces": {\n                  "south": { "uv": [ 0, 0, 8, 8 ], "texture": "#gui"},\n                  "north": { "uv": [ 0, 0, 8, 8 ], "texture": "#gui"}\n              }\n          },\n          {\n              "from": [ -16, -16, -16 ],\n              "to": [ ' + outPos + ' ],\n              "rotation": {\n                  "origin":[ '+positions[1].toString()+', 0],\n                  "axis":"z",\n                  "angle":-22.5\n              },\n              "faces": {\n                  "south": { "uv": [ 8, 0, 16, 8 ], "texture": "#gui"},\n                  "north": { "uv": [ 8, 0, 16, 8 ], "texture": "#gui"}\n              }\n          },\n          {\n              "from": [ -16, -16, -16 ],\n              "to": [ ' + outPos + ' ],\n              "rotation": {\n                  "origin":[ '+positions[2].toString()+', 0],\n                  "axis":"z",\n                  "angle":-22.5\n              },\n              "faces": {\n                  "south": { "uv": [ 0, 8, 8, 16 ], "texture": "#gui"},\n                  "north": { "uv": [ 0, 8, 8, 16 ], "texture": "#gui"}\n              }\n          },\n          {\n              "from": [ -16, -16, -16 ],\n              "to": [ ' + outPos + ' ],\n              "rotation": {\n                  "origin":[ '+positions[3].toString()+', 0],\n                  "axis":"z",\n                  "angle":-22.5\n              },\n              "faces": {\n                  "south": { "uv": [ 8, 8, 16, 16 ], "texture": "#gui"},\n                  "north": { "uv": [ 8, 8, 16, 16 ], "texture": "#gui"}\n              }\n          }\n      ],\n      "display": {\n          "gui": {\n              "rotation": [ -45, 0, 22.5 ],\n              "scale": [ 4, 4, 4 ],\n              "translation": [ 0, 0, -80 ]\n          }\n      }\n  }\n'
+  //then the very nicely formatted output here.
+  var output = [
+  '{',
+  '  "textures": {',
+  '    "gui": "'+image+'"',
+  '  },',
+  '  "elements": [',
+  '    {',
+  '      "from": [ -16, -16, -16 ],',
+  '      "to": [ ' + outPos + ' ],',
+  '      "rotation": {',
+  '        "origin":[ '+positions[0].toString()+', 0],',
+  '        "axis":"z",',
+  '        "angle":-22.5',
+  '      },',
+  '     "faces": {',
+  '        "south": { "uv": [ 0, 0, 8, 8 ], "texture": "#gui"}',
+  '      }',
+  '    },',
+  '    {',
+  '      "from": [ -16, -16, -16 ],',
+  '      "to": [ ' + outPos + ' ],',
+  '      "rotation": {',
+  '         "origin":[ '+positions[1].toString()+', 0],',
+  '         "axis":"z",',
+  '         "angle":-22.5',
+  '      },',
+  '      "faces": {',
+  '          "south": { "uv": [ 8, 0, 16, 8 ], "texture": "#gui"}',
+  '        }',
+  '    },',
+  '    {',
+  '      "from": [ -16, -16, -16 ],',
+  '      "to": [ ' + outPos + ' ],',
+  '      "rotation": {',
+  '        "origin":[ '+positions[2].toString()+', 0],',
+  '        "axis":"z",',
+  '        "angle":-22.5',
+  '      },',
+  '      "faces": {',
+  '        "south": { "uv": [ 0, 8, 8, 16 ], "texture": "#gui"}',
+  '      }',
+  '    },',
+  '    {',
+  '      "from": [ -16, -16, -16 ],',
+  '      "to": [ ' + outPos + ' ],',
+  '      "rotation": {',
+  '         "origin":[ '+positions[3].toString()+', 0],',
+  '         "axis":"z",',
+  '         "angle":-22.5',
+  '      },',
+  '      "faces": {',
+  '        "south": { "uv": [ 8, 8, 16, 16 ], "texture": "#gui"}',
+  '      }',
+  '    }',
+  '  ],',
+  '  "display": {',
+  '    "gui": {',
+  '      "rotation": [ -45, 0, 22.5 ],',
+  '      "scale": [ 4, 4, 4 ],',
+  '      "translation": [ 0, 0, -80 ]',
+  '    }',
+  '  }',
+  '}'].join('\n')
   return output
 }
 //and this is everything to get the outputted item file, very very fancy.
-alert(outputEverthing(displayToItemPos(dimensions,pixelPos)))
+function generate(){
+  var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value]
+  var pixelPos = [document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value]
+  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos));
+}

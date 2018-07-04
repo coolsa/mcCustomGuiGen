@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<meta charset="utf-8">
+  	<link rel="stylesheet" href="css/main.css">
+  	<link rel="shortcut icon" href="img/icon.png">
+  	<script src="script/main.js"></script>
+  	<title>MC Gui Generator</title>
+  </head>
+  <body>
+    <form onsubmit= "generate(); return false;" class="input">
+      <div class="inputSize">
+        <p>Image dimensions:</p>
+        <input type="text" name="sizeX" placeholder="Image width">
+        <input type="text" name="sizeY" placeholder="Image height">
+      </div>
+      <div class="inputPos">
+        <p>Distance to top right corner:</p>
+        <input type="text" name="posX" placeholder="from left of image">
+        <input type="text" name="posY" placeholder="from top of image">
+      </div>
+      <input type="submit" value="Generate">
+    </form>
+    <div class="output" onClick='window.getSelection().selectAllChildren(document.getElementsByClassName("output")[0].children[0])'>
+      <p>When this is clicked, all the text written here will be selected.
+This makes it easy to copy and paste the generated model.
+Nothing has been generated yet.</p>
+    </div>
+  </body>
+</html>
