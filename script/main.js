@@ -85,7 +85,7 @@ function displayToItemPos(dimensions=[256,256], invPos=[0,0], toPos= [16,16], im
   //this just shifts around the position of the thing, so it all renders well.
   return [revertPos(toPos,itemPos),revertPos([toPos[0]+128,toPos[1]],itemPos),revertPos([toPos[0],toPos[1]-128],itemPos),revertPos([toPos[0]+128,toPos[1]-128],itemPos)]
 }
-function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],imageSize=[32,32/Math.cos(45*(Math.PI / 180)),0],image="custom_gui/tree_crafting"){
+function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],image="custom_gui/tree_crafting",imageSize=[32,32/Math.cos(45*(Math.PI / 180)),0]){
   var outPos = (imageSize[0]-16) + ', ' + (imageSize[1]-16) + ', ' + (imageSize[2]-16) //prep this out positioning. basically that image size thing.
   //then the very nicely formatted output here.
   var output = [
@@ -157,5 +157,5 @@ function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],imageSize=[32,32/Ma
 function generate(){
   var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value]
   var pixelPos = [document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value]
-  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos));
+  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos),document.getElementsByClassName("inputName")[0].children[1].value);
 }

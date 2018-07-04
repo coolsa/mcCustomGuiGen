@@ -19,12 +19,34 @@
         <input type="text" name="posX" placeholder="from left of image">
         <input type="text" name="posY" placeholder="from top of image">
       </div>
+      <div class="inputName">
+        <p>The path to the file in the images folder of the resource pack:</p>
+        <input type="text" name="name" placeholder="gui/filename">
+      </div>
       <input type="submit" value="Generate">
     </form>
     <div class="output" onClick='window.getSelection().selectAllChildren(document.getElementsByClassName("output")[0].children[0])'>
       <p>When this is clicked, all the text written here will be selected.
 This makes it easy to copy and paste the generated model.
 Nothing has been generated yet.</p>
+    </div>
+    <div class="guide">/
+The above is the output for the generator, it will not select this and the below.
+This is the guide on how to use this tool.
+This tool requests the image dimensions and the top right position of the spot where the item will be centered.
+Below is an example of the process to create your own, or a very basic guide.
+
+Lets say I have an inventory, like this custom double chest here:
+<img src="img/DoubleChest.png" alt="custom double chest">
+I want to put the item that this inventory will render as into the top left corner of this, to render overtop of the original inventory, where the 1 is.
+<img src="img/chestSpot.png" alt="the slot i want to put the item into.">
+So to do so, I must measure the total size of the image. This one is 256 wide by 256 high, and enter those numbers into the Image dimensions inputs at the top.
+<img src="img/measureSize.png" alt="measuring size of the image.">
+Afterwards, I must measure the top right pixel of where I want the item to be positioned.
+<img src="img/measurePos.png" alt="measuring position of the item.">
+Then I put this into my resource pack as the model for the item, and when put into the spot where I want to position the item in the inventory, it renders as such.
+<img src="img/outputExample.png" alt="final output for the item inventory.">
+By following these rough steps, it should be possible for you to create your own using this tool.
     </div>
   </body>
 </html>

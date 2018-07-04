@@ -1,5 +1,16 @@
 body {
+  margin: auto;
+  width: 50%;
 }
 .output p {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
+}
+.guide {
+  white-space: pre-wrap;
+}
+.guide img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
