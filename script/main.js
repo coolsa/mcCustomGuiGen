@@ -157,5 +157,5 @@ function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],image="custom_gui/t
 function generate(){
   var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value]
   var pixelPos = [document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value]
-  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos),document.getElementsByClassName("inputName")[0].children[1].value,213*(pixelPos[1]/dimensions[1]-18/256)-60);
+  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos),document.getElementsByClassName("inputName")[0].children[1].value,256*(pixelPos[1]/dimensions[1]-108/256)+4);
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<meta charset="utf-8">
+  	<link rel="stylesheet" href="css/main.css">
+  	<link rel="shortcut icon" href="img/icon.png">
+  	<script src="script/main.js"></script>
+  	<title>MC Gui Generator</title>
+  </head>
+  <body>
+    <div class="header">
+      <div class="link">
+        <a href="index.html"><p>Main tool</p></a>
+      </div>
+      <div class="link">
+        <a href="guide.html"><p>Video tutorial</p></a>
+      </div>
+    </div>
+    <div class="guide">
+This is the guide or tutorial on how to use this tool.
+
+1: Find the inventory and the spot you want to use.
+<img src="img/selectedSpotInventory.png" alt="the hoe is center point of where everything renders from.">
+
+2: Screenshot inventorty with gui scale = 1, the option is found in video settings.
+<img src="img/guiScale.png" alt="its in video settings.">
+
+3: Select 256 by 256 area.
+  Do note that you can use other areas, just make sure its 256 * gui scale square to use this trick.
+<img src="img/selectedInventory.png" alt="you cant tell, but it is actually 256 by 256 in this gimp screenshot.">
+
+4: Take measurments of the top right of where you will be putting the item that is rendering the inventory.
+<img src="img/selectedSizePos.png" alt="you also cant see my mouse in these screenshots.">
+
+5: Edit the texture as you wish and save it in a resource pack.
+<img src="img/ExampleInventory.png" alt="wow, very creative. I like trees I guess.">
+
+6: Input size, measurements, and image name and save the generated file.
+<img src="img/exportResult.png" alt="you didnt see me putting the numbers in, so i might lose you here.">
+
+When following these steps, I got this for my result.
+<img src="img/outputExample.png" alt="final output for the item inventory.">
+
+Bugs, issues, etc:
+Please note, that for the bottom fifth, or anywhere that gives a final result with over 70 for the translation may appear cut off on the top.
+<img src="img/badRenderingSpots.png" alt="everything in red here is problem areas dont put the diamond hoe down there you goof.">
+
+Also, text can look weird if rendering over inventories above the item.
+<img src="img/renderingIssues.png" alt="this is the reason why i left a bunch of transparency in the example inventory above.">
+
+Image sizes that are different from a 256 square are untested.
+    </div>
+  </body>
+</html>
