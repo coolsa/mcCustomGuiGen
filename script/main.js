@@ -85,24 +85,35 @@ function rotationXZ(posStart,origin,angle){
     angle *= (Math.PI/180);
     return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
 }
-var shift = [0,0,0];
+var shift = [0,0,-80];
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
-function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],firstTime=false,origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
-		//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,0.0000001],firstTime=false,origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
+	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
+	var loops=0;
+	do{
 		endPos = targetPos.slice();
-		endPos = [endPos[0]-shift[0],endPos[1]-shift[1],endPos[2]-shift[2]];
 		endPos = [(endPos[0]-origin[0])/scale[0]+origin[0],(endPos[1]-origin[1])/scale[1]+origin[1],(endPos[2]-origin[2])/scale[2]+origin[2]];
 		[endPos[1],endPos[2]]=rotationXZ([endPos[1],endPos[2]],origin,xAxisAngle);
 		[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
 		[endPos[0],endPos[1]]=revertRotationXZ(endPos,startPos,-zAxisAngle);
+		if(endPos[2]<-400){
+			if(firstTime&&endPos[2]>-350)return endPos;
+			else{
+				//do something here
+			}
+		}else if(endPos[2]>-16){
+		}
+		return endPos;
+	}while(firstTime&&loops>100000)
+	throw "error! no positions found!"
 }
 
 //this is a function that ill put into a JSON stringify, fancy dancy stuff...
 function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],firstTime=false,uvArea=[0,0,8,8],imageMin=[0,-3.313708499,-16],imageMax=[16,19.3137085,8]){
-	var origin = findStartValues(endPos.slice(),startPos,scale,firstTime)
+	var origin = findStartValues(endPos.slice(),startPos.slice(),scale,firstTime)
 	return {
 		from:imageMin,
-		to:[imageMax[0],imageMax[1],origin[2]],
+		to:imageMax,
 		faces:{south:{uv:uvArea,texture:"#gui"}},
 		rotation:{
 			origin:origin,
