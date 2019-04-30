@@ -16,7 +16,7 @@
         <a href="guide.html"><p>Video tutorial</p></a>
       </div>
     </div>
-    <form onsubmit= "generate(); return false;" class="input">
+    <form onsubmit="generate(); return false;" class="input">
       <div class="inputSize">
         <p>Image dimensions:</p>
         <input type="text" name="sizeX" placeholder="Image width">
@@ -31,7 +31,7 @@
         <p>The path to the file in the images folder of the resource pack:</p>
         <input type="text" name="name" placeholder="gui/filename">
       </div>
-      <input type="submit" value="Generate">
+      <input type="submit" value="Generate" onclick="generate(); return false;">
     </form>
     <div class="output" onClick='window.getSelection().selectAllChildren(document.getElementsByClassName("output")[0].children[0])'>
       <p>When this is clicked, all the text written here will be selected.

@@ -14,16 +14,16 @@ function rotate(xPoint,yPoint,xOrigin,yOrigin,deg){
 }
 
 //this defaults for the top right corner of the item, with its scaling and all.
-function findOutPos(posPivot, xWidth=32-16,yWidth=32/Math.cos(45*(Math.PI / 180))-16,zWidth=-16, xCenter=8,yCenter=8,zCenter=8){
+function findOutPos(posPivot, scaling=[4,4,4], xWidth=32-16,yWidth=32/Math.cos(45*(Math.PI / 180))-16,zWidth=-16, xCenter=8,yCenter=8,zCenter=8){
   //so the widths basically defines the size of the image. this is the default im using
   //can be chaged through other things though.
   //the widths are between -16 and 32, top right corner something something.
   //this is the initial, controllable, rotation.
   var pos = rotate(xWidth,yWidth,posPivot[0],posPivot[1],-22.5);
   //everything below is centered on 8,8,8. below is scaling
-  pos[0] = (pos[0])*4-(16+xCenter);
-  pos[1] = (pos[1])*4-(16+yCenter);
-  var zWidth = (zWidth)*4-(16+zCenter);
+  pos[0] = (pos[0]-xCenter)*scaling[0]+(xCenter);
+  pos[1] = (pos[1]-xCenter)*scaling[1]+(yCenter);
+  zWidth = (zWidth-zCenter)*scaling[2]+(zCenter);
   //then z rotation, followed by y rotation.
   var pos = rotate(pos[0],pos[1],xCenter,yCenter,22.5);
   [pos[1],pos[2]]=rotate(pos[1],zWidth,yCenter,zCenter,-45);
@@ -32,27 +32,23 @@ function findOutPos(posPivot, xWidth=32-16,yWidth=32/Math.cos(45*(Math.PI / 180)
 //this gets the top corner in relation to the zero zero (bottom left corner of item.)
 //now to invert it.
 //image pos is default top right corner.
-function revertPos(pos, imagePos = [32-16,32/Math.cos(45*(Math.PI / 180))-16],zWidth=-16, xCenter=8,yCenter=8,zCenter=8){
+function revertPos(pos, scaling=[4,4,4], imagePos = [32-16,32/Math.cos(45*(Math.PI / 180))-16],zWidth=-16, xCenter=8,yCenter=8,zCenter=8){
   //preserve passed arrays.
   pos=pos.slice();
   imagePos=imagePos.slice();
   var originalPos = pos.slice();
-  var zOffset=-84.6862915010152406275; //what the hell is this number? otherwise it works for figuring out the value.
   var rad = -45*(Math.PI / 180);
-  //get the z coordinate again, to undo the final 45 degree translation.
-  var zWidth = (pos[1]+zOffset*Math.sin(rad))*Math.tan(rad)+zOffset*Math.cos(rad);
-  [pos[1],zWidth] = rotate(pos[1],zWidth,yCenter,zCenter,45);
+  //get the z coordinate again, to undo the final 45 degree translation with some quick maths.
+  zWidth = (zWidth-zCenter)*scaling[2]+(zCenter);
+  pos[1] = (((pos[1]-yCenter)+(zWidth-zCenter)*Math.sin(rad))/Math.cos(rad))+yCenter; //this is what zOffset is now. code is corrected!
   //undo the 22.5 degree translation.
   var pos = rotate(pos[0],pos[1],xCenter,yCenter,-22.5);
   //undo the scaling.
-  pos[0] = (pos[0]+(16+xCenter))/4;
-  pos[1] = (pos[1]+(16+yCenter))/4;
+  pos[0] = (pos[0]-xCenter)/scaling[0]+(xCenter);
+  pos[1] = (pos[1]-xCenter)/scaling[1]+(yCenter);
   //find the pivot point, the whole point of these steps.
-  var pos=findAB(pos,imagePos,-22.5);
+  var pos=revertRotationXZ(pos,imagePos,-22.5);
   return(pos);
-}
-function approxEqual(pos1, pos2, epsilon = 0.001){
-  return Math.abs(pos1[0]-pos2[0])<epsilon&&Math.abs(pos1[1]-pos2[1])<epsilon
 }
 //this takes two positions, starting and ending, and finds the center pivot point.
 function findAB(posStart,posEnd, angle){
@@ -75,17 +71,58 @@ function findAB(posStart,posEnd, angle){
   return([midpoint[0]-(toCenter*normal[1])*direction,midpoint[1]+(toCenter*normal[0])*direction])
 }
 
+
+
+
+//The math behind this is just a simple rotation matrix, that I did some linear algebra on and used symbolab to solve for the x and y origin, math is better explained in the notes, messy as they are.
+function revertRotationXZ(posStart,posEnd,angle){
+	angle *= (Math.PI/180);
+	return([((posStart[1]-posEnd[1])*Math.sin(angle)+(posStart[0]+posEnd[0])*(1-Math.cos(angle)))/((Math.sin(angle))**2+(1-Math.cos(angle))**2),((posEnd[0]-posStart[0])*Math.sin(angle)+(posStart[1]+posEnd[1])*(1-Math.cos(angle)))/((Math.sin(angle))**2+(1-Math.cos(angle))**2)])
+}
+
+//this is a simple rotation matrix, the one for x and z axis rotations works out to be the same math. nifty keen, jelly bean.
+function rotationXZ(posStart,origin,angle){
+    angle *= (Math.PI/180);
+    return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
+}
+var shift = [0,0,0];
+//this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],firstTime=false,origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
+		//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
+		endPos = targetPos.slice();
+		endPos = [endPos[0]-shift[0],endPos[1]-shift[1],endPos[2]-shift[2]];
+		endPos = [(endPos[0]-origin[0])/scale[0]+origin[0],(endPos[1]-origin[1])/scale[1]+origin[1],(endPos[2]-origin[2])/scale[2]+origin[2]];
+		[endPos[1],endPos[2]]=rotationXZ([endPos[1],endPos[2]],origin,xAxisAngle);
+		[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
+		[endPos[0],endPos[1]]=revertRotationXZ(endPos,startPos,-zAxisAngle);
+}
+
+//this is a function that ill put into a JSON stringify, fancy dancy stuff...
+function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],firstTime=false,uvArea=[0,0,8,8],imageMin=[0,-3.313708499,-16],imageMax=[16,19.3137085,8]){
+	var origin = findStartValues(endPos.slice(),startPos,scale,firstTime)
+	return {
+		from:imageMin,
+		to:[imageMax[0],imageMax[1],origin[2]],
+		faces:{south:{uv:uvArea,texture:"#gui"}},
+		rotation:{
+			origin:origin,
+			axis:"z",
+			angle:22.5
+		}};
+}
+
 //this should return 4 different positions, for each of the four corners.
 function displayToItemPos(dimensions=[256,256], invPos=[0,0], toPos= [16,16], imageDim=[32,32/Math.cos(45*(Math.PI / 180))], ) {
   var quarterDim=[dimensions[0]/2,dimensions[1]/2]
   var adjustedPos = [invPos[0],(dimensions[1]-invPos[1])-quarterDim[1]]
   //get the point that it will be at originally,
   var itemPos = [adjustedPos[0]*(imageDim[0]/quarterDim[0])-16,adjustedPos[1]*(imageDim[1]/quarterDim[1])-16]
-  console.log(revertPos(toPos,itemPos))
+//  console.log(revertPos(toPos,itemPos))
   //this just shifts around the position of the thing, so it all renders well.
-  return [revertPos(toPos,itemPos),revertPos([toPos[0]+128,toPos[1]],itemPos),revertPos([toPos[0],toPos[1]-128],itemPos),revertPos([toPos[0]+128,toPos[1]-128],itemPos)]
+  var scaling = [4,4,0.00000001]
+  return [revertPos(toPos,scaling,itemPos),revertPos([toPos[0]+128,toPos[1]],scaling,itemPos),revertPos([toPos[0],toPos[1]-128],scaling,itemPos),revertPos([toPos[0]+128,toPos[1]-128],scaling,itemPos)]
 }
-function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],image="custom_gui/tree_crafting",offset=-80,imageSize=[32,32/Math.cos(45*(Math.PI / 180)),0]){
+function outputEverthing(positions=[[0,0],[0,0],[0,0],[0,0]],image="custom_gui/example",offset=-80,imageSize=[32,32/Math.cos(45*(Math.PI / 180)),0]){
   var outPos = (imageSize[0]-16) + ', ' + (imageSize[1]-16) + ', ' + (imageSize[2]-16) //prep this out positioning. basically that image size thing.
   //then the very nicely formatted output here.
   var output = [
