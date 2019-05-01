@@ -81,29 +81,40 @@ function revertRotationXZ(posStart,posEnd,angle){
 }
 
 //this is a simple rotation matrix, the one for x and z axis rotations works out to be the same math. nifty keen, jelly bean.
+function rotationY(posStart,origin,angle){
+    angle *= (Math.PI/180);
+    return([Math.cos(angle)*(posStart[0]-origin[0])+Math.sin(angle)*(posStart[1]-origin[1])+origin[0],-Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
+}
 function rotationXZ(posStart,origin,angle){
     angle *= (Math.PI/180);
     return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
 }
-var shift = [0,0,-80];
+var shift = [0,0,0];
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
 function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,0.0000001],firstTime=false,origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
 	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
 	var loops=0;
 	do{
-		endPos = targetPos.slice();
+		endPos = targetPos;
+		beginningPos = startPos;
+		console.log(beginningPos,endPos);
 		endPos = [(endPos[0]-origin[0])/scale[0]+origin[0],(endPos[1]-origin[1])/scale[1]+origin[1],(endPos[2]-origin[2])/scale[2]+origin[2]];
-		[endPos[1],endPos[2]]=rotationXZ([endPos[1],endPos[2]],origin,xAxisAngle);
+		endPos[1]= (endPos[1]-origin[1])/Math.cos(45*(Math.PI/180))+origin[1];
 		[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
-		[endPos[0],endPos[1]]=revertRotationXZ(endPos,startPos,-zAxisAngle);
+//		endPos[2]=((startPos[2]+Math.sin(-zAxisAngle*(Math.PI/180))*(endPos[1]-origin[1])+origin[2]*(Math.cos(-zAxisAngle*(Math.PI/180))-1))/Math.cos(-zAxisAngle*(Math.PI/180)));
+//		console.log(beginningPos,endPos);
+//		[endPos[1],endPos[2]]=rotationXZ([endPos[1],endPos[2]],origin,xAxisAngle);
+		console.log(beginningPos,endPos);
+		[beginningPos[0],beginningPos[1]]=revertRotationXZ(beginningPos,endPos,zAxisAngle);
+		console.log(beginningPos,endPos);
 		if(endPos[2]<-400){
-			if(firstTime&&endPos[2]>-350)return endPos;
+			if(firstTime&&beginningPos[2]>-350)return beginningPos;
 			else{
 				//do something here
 			}
-		}else if(endPos[2]>-16){
+		}else if(beginningPos[2]>-16){
 		}
-		return endPos;
+		return beginningPos;
 	}while(firstTime&&loops>100000)
 	throw "error! no positions found!"
 }
