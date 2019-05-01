@@ -91,46 +91,60 @@ function rotationXZ(posStart,origin,angle){
 }
 var shift = [0,0,0];
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
-function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,0.0000001],firstTime=false,origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
 	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
 	var loops=0;
+	targetPos[2]=startPos[2];
+	targetPos.forEach(function(val,pos,arr){arr[pos]=(val-origin[pos])/scale[pos]+origin[pos]});
+	console.log(targetPos,startPos);
+	endPos = targetPos.slice();
+	beginningPos = startPos.slice();
+	sorter=24;
 	do{
-		endPos = targetPos;
-		beginningPos = startPos;
-		console.log(beginningPos,endPos);
-		endPos = [(endPos[0]-origin[0])/scale[0]+origin[0],(endPos[1]-origin[1])/scale[1]+origin[1],(endPos[2]-origin[2])/scale[2]+origin[2]];
-		endPos[1]= (endPos[1]-origin[1])/Math.cos(45*(Math.PI/180))+origin[1];
-		[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
-//		endPos[2]=((startPos[2]+Math.sin(-zAxisAngle*(Math.PI/180))*(endPos[1]-origin[1])+origin[2]*(Math.cos(-zAxisAngle*(Math.PI/180))-1))/Math.cos(-zAxisAngle*(Math.PI/180)));
-//		console.log(beginningPos,endPos);
-//		[endPos[1],endPos[2]]=rotationXZ([endPos[1],endPos[2]],origin,xAxisAngle);
-		console.log(beginningPos,endPos);
-		[beginningPos[0],beginningPos[1]]=revertRotationXZ(beginningPos,endPos,zAxisAngle);
-		console.log(beginningPos,endPos);
-		if(endPos[2]<-400){
-			if(firstTime&&beginningPos[2]>-350)return beginningPos;
-			else{
-				//do something here
-			}
-		}else if(beginningPos[2]>-16){
+		minZ=(Math.sin(xAxisAngle*(Math.PI/180))*(beginningPos[2]-origin[2])*scale[2]/scale[1]);
+		console.log(minZ)
+		if(minZ>-16){
+			beginningPos[2]-=sorter;
 		}
-		return beginningPos;
-	}while(firstTime&&loops>100000)
-	throw "error! no positions found!"
+		else if(minZ<-350){
+			beginningPos[2]+=sorter;
+		}
+		sorter/=2;
+		if(loops++>54) 	throw "error! no positions found!"
+	}while((minZ>-16||minZ<-350))
+	endPos[1]= (((endPos[1]-origin[1])-minZ)/Math.cos(xAxisAngle*(Math.PI/180))+origin[1]);
+	[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
+	console.log(beginningPos,endPos);
+	[beginningPos[0],beginningPos[1]]=revertRotationXZ(beginningPos,endPos,zAxisAngle);
+	console.log(beginningPos,endPos);
+	return beginningPos;
 }
 
 //this is a function that ill put into a JSON stringify, fancy dancy stuff...
-function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],firstTime=false,uvArea=[0,0,8,8],imageMin=[0,-3.313708499,-16],imageMax=[16,19.3137085,8]){
-	var origin = findStartValues(endPos.slice(),startPos.slice(),scale,firstTime)
+function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8]){
+	var origin = findStartValues(endPos.slice(),startPos.slice(),scale)
+	//i heckin love JSON.stringify. this makes that old mess into a simple thing.
 	return {
 		from:imageMin,
-		to:imageMax,
+		to:[imageMax[0],imageMax[1],origin[2]],
 		faces:{south:{uv:uvArea,texture:"#gui"}},
 		rotation:{
 			origin:origin,
 			axis:"z",
 			angle:22.5
 		}};
+}
+
+function outputAllElements(uvArea=[0,0,16,16],imageDims=[256,256],imageParts=[4,4],itemCenter=[8,8,8]){
+	//min image parts is 2,2, but higher numbers are possible.
+	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
+	if(imageParts[0]<2 || imageParts[1] <2) throw "error! too few image parts on x, y, or both"
+	var imageElements = [[]]; //this is the imageParts[0] by [1] array.
+	for(var xPart = 0; xPart < imageParts[0]; xPart++){
+		for(var yPart = 0; yPart < imageParts[1]; yPart++){
+			
+		}
+	}
 }
 
 //this should return 4 different positions, for each of the four corners.
