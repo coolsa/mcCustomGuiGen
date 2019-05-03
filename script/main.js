@@ -159,12 +159,12 @@ function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageD
 	var topLeftStart=[pieceMin[0],pieceMax[1],8];
 	topLeftEnd=[topLeftEnd[0]+16,topLeftEnd[1]+16,8];
 	console.log(topLeftEnd,pieceMin,pieceMax,pieceDimensions);
-	if(imageParts[0]<2 || imageParts[1] <2) throw "error! too few image parts on x, y, or both"
+	if(imageParts[0]<2 || imageParts[1] <2) throw "error! too few image parts on x, y, or both";
 	var imageElements = []; //this is the imageParts[0] by [1] array.
 	for(var xPart = 0; xPart < imageParts[0]; xPart++){
 		for(var yPart = 0; yPart < imageParts[1]; yPart++){
 			var uvPart = [xPart*(uvArea[2]-uvArea[0])/4+uvArea[0],yPart*(uvArea[3]-uvArea[1])/4+uvArea[1],(xPart+1)*(uvArea[2]-uvArea[0])/4+uvArea[0],(yPart+1)*(uvArea[3]-uvArea[1])/4+uvArea[1]];
-			var goalPos = [topLeftEnd[0]+(imageEnd[0]-imageStart[0])*(xPart)/imageParts[0]+uvArea[0],topLeftEnd[1]-(imageEnd[1]-imageStart[1])*(yPart)/imageParts[1],8];
+			var goalPos = [topLeftEnd[0]+(imageEnd[0]-imageStart[0])*(xPart)/imageParts[0],topLeftEnd[1]-(imageEnd[1]-imageStart[1])*(yPart)/imageParts[1],8];
 			console.log(goalPos,uvPart);
 			imageElements.push(outputElement(topLeftStart,goalPos,scale,uvPart,pieceMin,pieceMax));
 		}
