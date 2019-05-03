@@ -89,40 +89,45 @@ function rotationXZ(posStart,origin,angle){
     angle *= (Math.PI/180);
     return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
 }
-var shift = [0,0,0];
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
-function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=[0,0,0],origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=45){
 	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
 	var loops=0;
 	targetPos[2]=startPos[2];
 	targetPos.forEach(function(val,pos,arr){arr[pos]=(val-origin[pos])/scale[pos]+origin[pos]});
-	console.log(targetPos,startPos);
+	//console.log(targetPos,startPos);
 	endPos = targetPos.slice();
 	beginningPos = startPos.slice();
-	sorter=24;
+	var sorter=12;
+	var specialZ=0,specialY=0,specialPos=[0,0];
 	do{
-		minZ=(Math.sin(xAxisAngle*(Math.PI/180))*(beginningPos[2]-origin[2])*scale[2]/scale[1]);
-		console.log(minZ)
-		if(minZ>-16){
+		specialZ=(Math.sin(xAxisAngle*(Math.PI/180))*(beginningPos[2]-origin[2])*scale[2]/scale[1]);
+		specialY= (((endPos[1]-origin[1])-specialZ)/Math.cos(xAxisAngle*(Math.PI/180))+origin[1]);
+		specialPos=rotationXZ([specialY,beginningPos[2]+shift[2]],origin,-xAxisAngle)
+		//console.log(/*shift[2],*/beginningPos[2],specialPos[1],"aaaa");
+		if(specialPos[1]>16*scale[2]/scale[1]){
 			beginningPos[2]-=sorter;
 		}
-		else if(minZ<-350){
+		else if(specialPos[1]<-32*scale[2]/scale[1]){
 			beginningPos[2]+=sorter;
 		}
 		sorter/=2;
-		if(loops++>54) 	throw "error! no positions found!"
-	}while((minZ>-16||minZ<-350))
-	endPos[1]= (((endPos[1]-origin[1])-minZ)/Math.cos(xAxisAngle*(Math.PI/180))+origin[1]);
+		if(loops++>54) {
+		//	if((shift[2]==0||(shift[2]+Math.abs(specialPos[1])+16)<-shift[2])) {shift[2] = -(Math.abs(specialPos[1])+16);loops=0;beginningPos[2]=8;sorter=12;}
+			/*else*/ throw "error! no positions found!";
+		}
+	}while(specialPos[1]>16*scale[2]/scale[1]||specialPos[1]<-32*scale[2]/scale[1])
+	endPos[1]=specialY;
 	[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
-	console.log(beginningPos,endPos);
+	//console.log(beginningPos,endPos);
 	[beginningPos[0],beginningPos[1]]=revertRotationXZ(beginningPos,endPos,zAxisAngle);
-	console.log(beginningPos,endPos);
+	//console.log(beginningPos,endPos);
 	return beginningPos;
 }
 
 //this is a function that ill put into a JSON stringify, fancy dancy stuff...
-function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8]){
-	var origin = findStartValues(endPos.slice(),startPos.slice(),scale)
+function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8],shift=[0,0,0]){
+	var origin = findStartValues(endPos.slice(),startPos.slice(),scale,shift)
 	//i heckin love JSON.stringify. this makes that old mess into a simple thing.
 	return {
 		from:imageMin,
@@ -135,16 +140,29 @@ function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0
 		}};
 }
 
-function outputAllElements(uvArea=[0,0,16,16],imageDims=[256,256],imageParts=[4,4],itemCenter=[8,8,8]){
+function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],scale=[4,4,4],xAxisAngle=45,zAxisAngle=22.5){
 	//min image parts is 2,2, but higher numbers are possible.
 	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
+	var uvArea = [16*imageStart[0]/imageDims[0],16*imageStart[1]/imageDims[1],16*imageEnd[0]/imageDims[0],16*imageEnd[1]/imageDims[1]];
+	console.log(uvArea);
+	var pieceDimensions=[64/imageParts[0],64/imageParts[1]];
+	var pieceMin=[8-pieceDimensions[0]/2,8-pieceDimensions[1]/(2*Math.cos(45*Math.PI/180)),8];
+	var pieceMax=[8+pieceDimensions[0]/2,8+pieceDimensions[1]/(2*Math.cos(45*Math.PI/180)),8];
+	var topRightStart=[0,pieceMax[1],8];
+	console.log(pieceMin,pieceMax,pieceDimensions);
+	topLeftEnd=[topLeftEnd[0]+16,topLeftEnd[1]+16,8];
 	if(imageParts[0]<2 || imageParts[1] <2) throw "error! too few image parts on x, y, or both"
-	var imageElements = [[]]; //this is the imageParts[0] by [1] array.
+	var imageElements = []; //this is the imageParts[0] by [1] array.
 	for(var xPart = 0; xPart < imageParts[0]; xPart++){
 		for(var yPart = 0; yPart < imageParts[1]; yPart++){
-			
+			var uvPart = [xPart*imageParts[1]+uvArea[0],yPart*imageParts[1]+uvArea[1],(xPart+1)*uvArea[2]/imageParts[0],(yPart+1)*uvArea[3]/imageParts[1]];
+			var goalPos = [topLeftEnd[0]+(imageDims[1]/imageParts[1])*(xPart),topLeftEnd[1]-(imageDims[1]/imageParts[1])*(yPart),8];
+			console.log(topRightStart,goalPos,uvPart);
+			imageElements.push(outputElement(topRightStart,goalPos,scale,uvPart,pieceMin,pieceMax));
 		}
 	}
+	var output = {textures:{gui:imageName},elements:imageElements,display:{gui:{rotation:[-xAxisAngle,0,-zAxisAngle],scale:scale,translation:[0,0,-80]}}}
+	return(output);
 }
 
 //this should return 4 different positions, for each of the four corners.
