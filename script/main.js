@@ -105,19 +105,20 @@ function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=
 		specialY= (((endPos[1]-origin[1])-specialZ)/Math.cos(xAxisAngle*(Math.PI/180))+origin[1]);
 		specialPos=rotationXZ([specialY,beginningPos[2]+shift[2]],origin,-xAxisAngle)
 		//console.log(/*shift[2],*/beginningPos[2],specialPos[1],"aaaa");
-		if(specialPos[1]>14*scale[2]/scale[1]){
+		if(specialPos[1]>-8){
 			beginningPos[2]-=sorter;
 		}
-		else if(specialPos[1]<-32*scale[2]/scale[1]){
+		else if(specialPos[1]<-8){
 			beginningPos[2]+=sorter;
 		}
 		sorter/=2;
 		if(loops++>54) {
-		//	if((shift[2]==0||(shift[2]+Math.abs(specialPos[1])+16)<-shift[2])) {shift[2] = -(Math.abs(specialPos[1])+16);loops=0;beginningPos[2]=8;sorter=12;}
-			/*else*/ throw "error! no positions found!";
+			if(specialPos[1]<=16&&specialPos[1]>=-32) break;
+			else throw "error! no positions found! best endPos: "+endPos+". best beginningPos: "+beginningPos;
 		}
-	}while(specialPos[1]>14*scale[2]/scale[1]||specialPos[1]<-32*scale[2]/scale[1])
+	}while(true)
 	endPos[1]=specialY;
+	console.log(specialPos,beginningPos);
 	[endPos[0],endPos[1]]=rotationXZ([endPos[0],endPos[1]],origin,zAxisAngle);
 	//console.log(beginningPos,endPos);
 	[beginningPos[0],beginningPos[1]]=revertRotationXZ(beginningPos,endPos,zAxisAngle);
@@ -140,16 +141,16 @@ function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0
 		}};
 }
 
-function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=1,scale=[4,4,4],xAxisAngle=45,zAxisAngle=22.5){
+function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=1,cover=false,scale=[4,4,4],xAxisAngle=45,zAxisAngle=22.5){
 	//min image parts is 2,2, but higher numbers are possible.
 	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
-	//pixel ratio is basically the density of pixels, default minecraft is 16x16, but if its 32x32, the ratio of old/new is .5
+	//pixel ratio is basically the density of pixels, default minecraft is 16x16, but if its 32x32, the ratio of new/old is 2
 	//multiply the topLeftEnd imageDims, imageStart, imageEnd by the ratio.
 	var defaultDims=[256,256];
-	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val*pixelRatio});
-	imageDims.forEach(function(val,pos,arr){arr[pos]=val*pixelRatio});
-	imageStart.forEach(function(val,pos,arr){arr[pos]=val*pixelRatio});
-	imageEnd.forEach(function(val,pos,arr){arr[pos]=val*pixelRatio});
+	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
+	imageDims.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
+	imageStart.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
+	imageEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
 	var invSize=[imageEnd[0]-imageStart[0],imageEnd[1]-imageStart[1]]
 	var uvArea = [16*imageStart[0]/imageDims[0],16*imageStart[1]/imageDims[1],16*imageEnd[0]/imageDims[0],16*imageEnd[1]/imageDims[1]];
 	//console.log(uvArea); //uv area test. this is correct now.
@@ -158,18 +159,21 @@ function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageD
 	var pieceMax=[8+pieceDimensions[0]/2,8+pieceDimensions[1]/(2*Math.cos(45*Math.PI/180)),8];
 	var topLeftStart=[pieceMin[0],pieceMax[1],8];
 	topLeftEnd=[topLeftEnd[0]+16,topLeftEnd[1]+16,8];
-	console.log(topLeftEnd,pieceMin,pieceMax,pieceDimensions);
+	console.log(topLeftEnd,pieceMin,pieceMax,pieceDimensions,uvArea);
 	if(imageParts[0]<2 || imageParts[1] <2) throw "error! too few image parts on x, y, or both";
 	var imageElements = []; //this is the imageParts[0] by [1] array.
 	for(var xPart = 0; xPart < imageParts[0]; xPart++){
 		for(var yPart = 0; yPart < imageParts[1]; yPart++){
-			var uvPart = [xPart*(uvArea[2]-uvArea[0])/4+uvArea[0],yPart*(uvArea[3]-uvArea[1])/4+uvArea[1],(xPart+1)*(uvArea[2]-uvArea[0])/4+uvArea[0],(yPart+1)*(uvArea[3]-uvArea[1])/4+uvArea[1]];
-			var goalPos = [topLeftEnd[0]+(imageEnd[0]-imageStart[0])*(xPart)/imageParts[0],topLeftEnd[1]-(imageEnd[1]-imageStart[1])*(yPart)/imageParts[1],8];
+			var uvPart = [xPart*(uvArea[2]-uvArea[0])/imageParts[0]+uvArea[0],yPart*(uvArea[3]-uvArea[1])/imageParts[1]+uvArea[1],(xPart+1)*(uvArea[2]-uvArea[0])/imageParts[0]+uvArea[0],(yPart+1)*(uvArea[3]-uvArea[1])/imageParts[1]+uvArea[1]];
+			var goalPos = [topLeftEnd[0]+invSize[0]*(xPart)/imageParts[0],topLeftEnd[1]-invSize[1]*(yPart)/imageParts[1],8];
 			console.log(goalPos,uvPart);
 			imageElements.push(outputElement(topLeftStart,goalPos,scale,uvPart,pieceMin,pieceMax));
 		}
 	}
-	var output = {textures:{gui:imageName},elements:imageElements,display:{gui:{rotation:[-xAxisAngle,0,-zAxisAngle],scale:scale,translation:[0,0,-80]}}}
+	var offset = [0,0,-80];
+	if(cover) offset[2]=80;
+
+	var output = {textures:{gui:imageName},elements:imageElements,display:{gui:{rotation:[-xAxisAngle,0,-zAxisAngle],scale:scale,translation:offset}}}
 	return(output);
 }
 
