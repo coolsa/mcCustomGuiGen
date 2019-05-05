@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<meta charset="utf-8">
+  	<link rel="stylesheet" href="css/main.css">
+  	<link rel="shortcut icon" href="img/icon.png">
+  	<script src="script/main.js"></script>
+  	<title>MC Gui Generator</title>
+  </head>
+  <body>
+    <div class="header">
+      <div class="link">
+        <a href="index.html"><p>Main tool</p></a>
+      </div>
+      <div class="link">
+        <a href="guide.html"><p>Video tutorial</p></a>
+      </div>
+      <div class="link">
+        <a href="notes.html"><p>Notes on process.</p></a>
+      </div>
+    </div>
+    <div class="guide">
+This is a bit of a breakdown of the math behind the whole process.
+
+It starts by taking the desired position for the item, in relation to the top-left of the image.
+
+The top left is the 0,0 position on the UV, which is the item's texture map. It starts at 0,0 and ends at 16,16 (aka the bottom right corner)
+
+The math behind this then takes that position relationship [X in, Y in, 0] , and then adds the position matrix [-8,8,8] to find the true center of the item.
+
+This center is used for the first portion of the actual thing... and stuff........
+
+I really just mapped this out on a gimp file, whole bunch of notes on there...
+    </div>
+  </body>
+</html>

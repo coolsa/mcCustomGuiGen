@@ -16,22 +16,46 @@
         <a href="guide.html"><p>Video tutorial</p></a>
       </div>
     </div>
-    <form onsubmit= "generate(); return false;" class="input">
-      <div class="inputSize">
-        <p>Image dimensions:</p>
-        <input type="text" name="sizeX" placeholder="Image width">
-        <input type="text" name="sizeY" placeholder="Image height">
-      </div>
+    <form onsubmit="generate(); return false;" class="input">
       <div class="inputPos">
-        <p>Distance to top right corner of item:</p>
-        <input type="text" name="posX" placeholder="from left of image">
-        <input type="text" name="posY" placeholder="from top of image">
+        <p>Distance from top right of item to top left of inventory:</p>
+        <input type="text" name="posX" placeholder="From left of image.">
+        <input type="text" name="posY" placeholder="From top of image.">
       </div>
       <div class="inputName">
         <p>The path to the file in the images folder of the resource pack:</p>
         <input type="text" name="name" placeholder="gui/filename">
       </div>
-      <input type="submit" value="Generate">
+      <div class="inputSize">
+        <p>Image dimensions:</p>
+        <input type="text" name="sizeX" placeholder="Image width, default 256">
+        <input type="text" name="sizeY" placeholder="Image height, default 256">
+      </div>
+      <div class="inventoryStart">
+        <p>Inventory starting position from top left of image:</p>
+        <input type="text" name="startX" placeholder="Inventory minimum X, default 0">
+        <input type="text" name="startY" placeholder="Inventory mimimum Y, default 0">
+      </div>
+      <div class="inventoryEnd">
+        <p>Inventory ending position from top left of image:</p>
+        <input type="text" name="endX" placeholder="Inventory maximum X, default 256">
+        <input type="text" name="endY" placeholder="Inventory maximum Y, default 256">
+      </div>
+      <div class="boxSize">
+        <p>Inventory square size (the size in pixels of what would be highlighted by a mouse):</p>
+        <input type="text" name="boxX" placeholder="Inventory square width, default 16">
+        <input type="text" name="boxY" placeholder="Inventory square height, default 16">
+      </div>
+      <div class="pieces">
+        <p>Amount of segments to split the final image into (does not influence final render):</p>
+        <input type="text" name="piecesX" placeholder="Amount of X segments, default 4">
+        <input type="text" name="piecesY" placeholder="Amount of Y segments, default 4">
+      </div>
+      <div class="cover">
+        <p>Cover all items in inventory:</p>
+        <input type="checkbox" name="covered">
+      </div>
+      <input type="submit" value="Generate" onclick="generate(); return false;">
     </form>
     <div class="output" onClick='window.getSelection().selectAllChildren(document.getElementsByClassName("output")[0].children[0])'>
       <p>When this is clicked, all the text written here will be selected.
