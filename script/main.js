@@ -60,15 +60,15 @@ function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0
 		}};
 }
 
-function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=1,cover=false,scale=[4,4,4],xAxisAngle=45,zAxisAngle=22.5){
+function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=[1,1],cover=false,scale=[4,4,4],xAxisAngle=45,zAxisAngle=22.5){
 	//min image parts is 2,2, but higher numbers are possible.
 	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
 	//pixel ratio is basically the density of pixels, default minecraft is 16x16, but if its 32x32, the ratio of new/old is 2
 	//multiply the topLeftEnd imageDims, imageStart, imageEnd by the ratio.
-	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
-	imageDims.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
-	imageStart.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio});
-	imageEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio}); //these for forEach just undo the scaling of the image.
+	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
+	imageDims.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
+	imageStart.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
+	imageEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]}); //these for forEach just undo the scaling of the image.
 	var invSize=[imageEnd[0]-imageStart[0],imageEnd[1]-imageStart[1]] //this is just a frequently used value, nothing more.
 
 	//uvArea is a bit complicated, not really though. just a ration between the image positions and the size, multiplied by 16.
@@ -106,7 +106,16 @@ function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageD
 
 //and this is everything to get the outputted item file, very very fancy. update: gotta add more parts lol.
 function generate(){
-  var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value]
-  var pixelPos = [document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value]
-  document.getElementsByClassName("output")[0].children[0].innerText = outputEverthing(displayToItemPos(dimensions,pixelPos),document.getElementsByClassName("inputName")[0].children[1].value,256*(pixelPos[1]/dimensions[1]-108/256)+4);
+  var pixelPos = [document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value];
+  var name = document.getElementsByClassName("inputName")[0].children[1].value;
+  var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value];
+  var start = [document.getElementsByClassName("inventoryStart")[0].children[1].value,document.getElementsByClassName("inventoryStart")[0].children[2].value];
+  var end = [document.getElementsByClassName("inventoryEnd")[0].children[1].value,document.getElementsByClassName("inventoryEnd")[0].children[2].value];
+  var scale = [document.getElementsByClassName("boxSize")[0].children[1].value,document.getElementsByClassName("boxSize")[0].children[2].value];
+  var pieces = [document.getElementsByClassName("pieces")[0].children[1].value,document.getElementsByClassName("pieces")[0].children[2].value];
+	var cover = document.getElementsByClassName("cover")[0].children[1].checked;
+	//check the scaling for the actual image. 32x32? 32x16? lol idc it should work tho.
+	scale.forEach(function(val,pos,arr){arr[pos]=val/16});
+	//i mean the rest of these values should work as is, so uhhhh... plug them in????
+  document.getElementsByClassName("output")[0].children[0].innerText = JSON.stringify(outputAllElements(pixelPos,name,dimensions,pieces,start,end,scale,cover));
 }
