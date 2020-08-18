@@ -16,21 +16,39 @@
         <a href="guide.html"><p>Video tutorial</p></a>
       </div>
       <div class="link">
-        <a href="notes.html"><p>Notes on process.</p></a>
-      </div>
+	      <a href="notes.html"><p>Notes on logic</p></a>
+	    </div>
     </div>
     <div class="guide">
 This is a bit of a breakdown of the math behind the whole process.
 
-It starts by taking the desired position for the item, in relation to the top-left of the image.
+Lets start with the basic process and work backwards from there.
 
-The top left is the 0,0 position on the UV, which is the item's texture map. It starts at 0,0 and ends at 16,16 (aka the bottom right corner)
+Minecraft rotations are strange. The main item rotation, not the element rotation, is centered on the very center of the item.
 
-The math behind this then takes that position relationship [X in, Y in, 0] , and then adds the position matrix [-8,8,8] to find the true center of the item.
+Then, the other rotation (the element one) happens at the origin of the texture, which is "from":[0,0,0] or "to":[0,0,0]. This is a bit strange, but it is basically -8,-8 in relation to the origin of the main rotation, scaled up by 8, so it looks like it is -32,-32 when gui scale is at 1.
 
-This center is used for the first portion of the actual thing... and stuff........
+From this information, if we know where we want the element (a fixed position), where the element starts (also a fixed position), then all we need to know are the individual steps to get to said original position. We can do this be reversing the scaling and rotation, and then calculating from this position the center origin of the rotation required to get to this position from the original position.
 
-I really just mapped this out on a gimp file, whole bunch of notes on there...
+The order of events is as follows:
+
+Base element -> Unknown origin rotation -> known origin rotation -> scaling -> final position.
+
+Only one step is unknown, but the operations before and after are known, so it may be possible to reverse (which it is, but we will get to that).
+
+
+
+Understanding rotations, we can find two rotations with two different origins to act as a simple translation. As the translation definition on the item model json maxes out at 80 in any direction and we need values greater than such, a rotation-translation is the only way to reach the desired locations.
+
+To truely reverse the way things are translated in minecraft, I analyzed the heck out of it through trial and error and found the order of applied transformations to be the following: the main rotation, then the specific rendering rotations, then the scaling, and finally the transformation.
+
+Some basic logic: if the main rotation is 22.5 degrees, a specific rendering rotation of -22.5 will counteract the first rotations skewing of the render, combining into a "simple" translation
+
+
+
+
+
+We start with a few user defined things, which are the inputs on the main page. The ones valueable for the finding of the needed transformations 
     </div>
   </body>
 </html>
