@@ -26,7 +26,7 @@ function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=
 		specialZ=(Math.sin(xAxisAngle*(Math.PI/180))*(beginningPos[2]-origin[2])*scale[2]/scale[1]);
 		specialY= (((endPos[1]-origin[1])-specialZ)/Math.cos(xAxisAngle*(Math.PI/180))+origin[1]);
 		specialPos=rotationXZ([specialY,beginningPos[2]+shift[2]],origin,-xAxisAngle) //this just reverts to find original z, which is [1]
-		console.warn(specialPos,specialY,specialZ,beginningPos);
+//		console.warn(specialPos,specialY,specialZ,beginningPos);
 		if(specialPos[1]>-8){ //basically trying to center starting z on the 8,8 Z position, as that is between -16 and 32.
 			beginningPos[2]-=sorter;
 		}
@@ -108,14 +108,32 @@ function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageD
 
 //and this is everything to get the outputted item file, very very fancy. update: gotta add more parts lol.
 function generate(){
-  var pixelPos = [-document.getElementsByClassName("inputPos")[0].children[1].value,document.getElementsByClassName("inputPos")[0].children[2].value];
+  var pixelPos = [-document.getElementsByClassName("inputPos")[0].children[1].value,+document.getElementsByClassName("inputPos")[0].children[2].value];
   var name = document.getElementsByClassName("inputName")[0].children[1].value;
   var dimensions = [document.getElementsByClassName("inputSize")[0].children[1].value,document.getElementsByClassName("inputSize")[0].children[2].value];
-  var start = [document.getElementsByClassName("inventoryStart")[0].children[1].value,document.getElementsByClassName("inventoryStart")[0].children[2].value];
+  var start = [+document.getElementsByClassName("inventoryStart")[0].children[1].value,+document.getElementsByClassName("inventoryStart")[0].children[2].value];
   var end = [document.getElementsByClassName("inventoryEnd")[0].children[1].value,document.getElementsByClassName("inventoryEnd")[0].children[2].value];
   var scale = [document.getElementsByClassName("boxSize")[0].children[1].value,document.getElementsByClassName("boxSize")[0].children[2].value];
   var pieces = [document.getElementsByClassName("pieces")[0].children[1].value,document.getElementsByClassName("pieces")[0].children[2].value];
 	var cover = document.getElementsByClassName("cover")[0].children[1].checked;
+	// if dimensions is at its default, make it so.
+	dimensions[0] === "" ? dimensions[0] = 256 : 1;
+	dimensions[1] === "" ? dimensions[1] = 256 : 1;
+
+	// if the end is at default, make it so.
+	end[0] === "" ? end[0] = dimensions[0] : 1;
+	end[1] === "" ? end[1] = dimensions[1] : 1;
+
+	// if the scale is default, lets make it so.
+	scale[0] === "" ? scale[0] = 16 : 1;
+	scale[1] === "" ? scale[1] = 16 : 1;
+
+	// and finally, if the pieces are default, make it so.
+	pieces[0] === "" ? pieces[0] = 4 : 1;
+	pieces[1] === "" ? pieces[1] = 4 : 1;
+
+//	console.log(" " + dimensions + " " + end + " " + scale + " " + pieces + " " +start + " " + pixelPos);
+
 	//check the scaling for the actual image. 32x32? 32x16? lol idc it should work tho.
 	scale.forEach(function(val,pos,arr){arr[pos]=val/16});
 	//i mean the rest of these values should work as is, so uhhhh... plug them in????
