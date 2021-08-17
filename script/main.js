@@ -1,6 +1,8 @@
 //The math behind this is just a simple rotation matrix, that I did some linear algebra and used symbolab to solve for the x and y origin, math is basically this:
 /* todo: fill this in.*/
-console.log("TEST");
+xAxisAngle = 0;
+zAxisAngle = 22.5;
+
 function revertRotationXZ(posStart,posEnd,angle){
 	angle *= (Math.PI/180);
 	return([((posStart[1]-posEnd[1])*Math.sin(angle)+(posStart[0]+posEnd[0])*(1-Math.cos(angle)))/((Math.sin(angle))**2+(1-Math.cos(angle))**2),((posEnd[0]-posStart[0])*Math.sin(angle)+(posStart[1]+posEnd[1])*(1-Math.cos(angle)))/((Math.sin(angle))**2+(1-Math.cos(angle))**2)])
@@ -12,7 +14,7 @@ function rotationXZ(posStart,origin,angle){
     return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
 }
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
-function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=[0,0,0],origin=[8,8,8],xAxisAngle=0,zAxisAngle=22.5){
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=[0,0,0],origin=[8,8,8]){
 	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
 	var loops=0;
 	targetPos[2]=startPos[2];
@@ -49,7 +51,7 @@ function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=
 
 //this is a function that ill put into a JSON stringify, fancy dancy stuff...
 function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8],shift=[0,0,0],backport=false){
-	var origin = backport ? findStartValues(endPos.slice(),startPos.slice(),scale,shift,[8,8,8],45): findStartValues(endPos.slice(),startPos.slice(),scale,shift);
+	var origin = findStartValues(endPos.slice(),startPos.slice(),scale,shift);
 	//i heckin love JSON.stringify. this makes that old mess into a simple thing.
 	return {
 		from:imageMin,
@@ -62,12 +64,10 @@ function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0
 		}};
 }
 
-function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=[1,1],cover=false,backport=false,scale=[4,4,4],xAxisAngle=0,zAxisAngle=22.5){
+function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=[1,1],cover=false,backport=false,scale=[4,4,4]){
 	//min image parts is 2,2, but higher numbers are possible.
 	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
 	//pixel ratio is basically the density of pixels, default minecraft is 16x16, but if its 32x32, the ratio of new/old is 2
-	if(backport) xAxisAngle = 45;
-	console.log(xAxisAngle);
 	//multiply the topLeftEnd imageDims, imageStart, imageEnd by the ratio.
 	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
 	imageDims.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
@@ -137,7 +137,7 @@ function generate(){
 	pieces[1] === "" ? pieces[1] = 4 : 1;
 //	if(backport) pixelPos[0] *= -1;
 //	console.log(" " + dimensions + " " + end + " " + scale + " " + pieces + " " +start + " " + pixelPos);
-
+	backport ? xAxisAngle = 45 : xAxisAngle = 0;
 	//check the scaling for the actual image. 32x32? 32x16? lol idc it should work tho.
 	scale.forEach(function(val,pos,arr){arr[pos]=val/16});
 	//i mean the rest of these values should work as is, so uhhhh... plug them in????
