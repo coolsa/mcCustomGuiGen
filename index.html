@@ -55,6 +55,10 @@
         <p>Cover all items in inventory:</p>
         <input type="checkbox" name="covered">
       </div>
+      <div class="backport">
+        <p>Using versions 1.14 and below:</p>
+        <input type="checkbox" name="backport">
+      </div>
       <input type="submit" value="Generate" onclick="generate(); return false;">
     </form>
     <div class="output" onClick='window.getSelection().selectAllChildren(document.getElementsByClassName("output")[0].children[0])'>

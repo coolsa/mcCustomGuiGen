@@ -12,7 +12,7 @@ function rotationXZ(posStart,origin,angle){
     return([Math.cos(angle)*(posStart[0]-origin[0])-Math.sin(angle)*(posStart[1]-origin[1])+origin[0],Math.sin(angle)*(posStart[0]-origin[0])+Math.cos(angle)*(posStart[1]-origin[1])+origin[1]]);
 }
 //this just reverses the original operations, which would be a rotation, then another, then another, then a scale. so just reverse that yo
-function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=[0,0,0],origin=[8,8,8],zAxisAngle=22.5,xAxisAngle=0){
+function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=[0,0,0],origin=[8,8,8],xAxisAngle=0,zAxisAngle=22.5){
 	//nothing screams good code like a do while loop, that just shuts down after 50000 times, yknow?
 	var loops=0;
 	targetPos[2]=startPos[2];
@@ -48,8 +48,8 @@ function findStartValues(targetPos=[8,8,8],startPos=[8,8,8],scale=[1,1,1],shift=
 }
 
 //this is a function that ill put into a JSON stringify, fancy dancy stuff...
-function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8],shift=[0,0,0]){
-	var origin = findStartValues(endPos.slice(),startPos.slice(),scale,shift)
+function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0,8,8],imageMin=[0,-3.313708499,8],imageMax=[16,19.3137085,8],shift=[0,0,0],backport=false){
+	var origin = backport ? findStartValues(endPos.slice(),startPos.slice(),scale,shift,[8,8,8],45): findStartValues(endPos.slice(),startPos.slice(),scale,shift);
 	//i heckin love JSON.stringify. this makes that old mess into a simple thing.
 	return {
 		from:imageMin,
@@ -62,10 +62,12 @@ function outputElement(startPos=[8,8,8],endPos=[8,8,8],scale=[1,1,1],uvArea=[0,0
 		}};
 }
 
-function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=[1,1],cover=false,scale=[4,4,4],xAxisAngle=0,zAxisAngle=22.5){
+function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageDims=[256,256],imageParts=[4,4],imageStart=[0,0],imageEnd=[256,256],pixelRatio=[1,1],cover=false,backport=false,scale=[4,4,4],xAxisAngle=0,zAxisAngle=22.5){
 	//min image parts is 2,2, but higher numbers are possible.
 	//the image parts basically helps to split the uv area up, produce the scale, and then find the item image sizes.
 	//pixel ratio is basically the density of pixels, default minecraft is 16x16, but if its 32x32, the ratio of new/old is 2
+	if(backport) xAxisAngle = 45;
+	console.log(xAxisAngle);
 	//multiply the topLeftEnd imageDims, imageStart, imageEnd by the ratio.
 	topLeftEnd.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
 	imageDims.forEach(function(val,pos,arr){arr[pos]=val/pixelRatio[pos]});
@@ -101,7 +103,8 @@ function outputAllElements(topLeftEnd=[0,0],imageName="example/inventory",imageD
 	var offset = [0,0,-80]; //this renders under all the items
 	if(cover) offset[2]=80; //this renders over all the items.
 	//lets put that output in a variable for debug reasons haha yes.
-	var output = {textures:{gui:imageName},gui_light:"front",elements:imageElements,display:{gui:{rotation:[-xAxisAngle,0,-zAxisAngle],scale:scale,translation:offset}}}
+	var gui_light = backport ? "side" : "front";
+	var output = {textures:{gui:imageName},gui_light:gui_light,elements:imageElements,display:{gui:{rotation:[-xAxisAngle,0,-zAxisAngle],scale:scale,translation:offset}}}
 	return(output);
 }
 
@@ -116,6 +119,7 @@ function generate(){
   var scale = [document.getElementsByClassName("boxSize")[0].children[1].value,document.getElementsByClassName("boxSize")[0].children[2].value];
   var pieces = [document.getElementsByClassName("pieces")[0].children[1].value,document.getElementsByClassName("pieces")[0].children[2].value];
 	var cover = document.getElementsByClassName("cover")[0].children[1].checked;
+	var backport = document.getElementsByClassName("backport")[0].children[1].checked;
 	// if dimensions is at its default, make it so.
 	dimensions[0] === "" ? dimensions[0] = 256 : 1;
 	dimensions[1] === "" ? dimensions[1] = 256 : 1;
@@ -131,13 +135,13 @@ function generate(){
 	// and finally, if the pieces are default, make it so.
 	pieces[0] === "" ? pieces[0] = 4 : 1;
 	pieces[1] === "" ? pieces[1] = 4 : 1;
-
+//	if(backport) pixelPos[0] *= -1;
 //	console.log(" " + dimensions + " " + end + " " + scale + " " + pieces + " " +start + " " + pixelPos);
 
 	//check the scaling for the actual image. 32x32? 32x16? lol idc it should work tho.
 	scale.forEach(function(val,pos,arr){arr[pos]=val/16});
 	//i mean the rest of these values should work as is, so uhhhh... plug them in????
-  try { document.getElementsByClassName("output")[0].children[0].innerText = JSON.stringify(outputAllElements(pixelPos,name,dimensions,pieces,start,end,scale,cover));
+  try { document.getElementsByClassName("output")[0].children[0].innerText = JSON.stringify(outputAllElements(pixelPos,name,dimensions,pieces,start,end,scale,cover,backport));
   }catch(error){document.getElementsByClassName("output")[0].children[0].innerText = error;
   }
 }
